@@ -1,4 +1,4 @@
-# KATHE / KatheBathe
+# KATHE 2026 / KatheBathe
 
 ## English → Kashmiri Machine Translation
 
