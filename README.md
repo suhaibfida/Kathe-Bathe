@@ -100,7 +100,7 @@ pip install -r requirements.txt
 ### 3. Run the inference script
 
 ```bash
-python inference.py --text "She was a true visionary."
+python inference.py
 ```
 
 The script automatically loads the required model and adapter from Hugging Face.
