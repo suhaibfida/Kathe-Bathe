@@ -31,6 +31,8 @@ The model is fine-tuned from **`sarvamai/sarvam-translate`** using **QLoRA / LoR
 - [Custom Text](#custom-text)
 - [Inference Flow](#inference-flow)
 - [Generation Settings](#generation-settings)
+  - [EOS Token — Required Setting](#eos-token--required-setting)
+  - [Output Cleanup — Removing Trailing Lines](#output-cleanup--removing-trailing-lines)
 - [Technical Details](#technical-details)
 - [Repository Structure](#repository-structure)
 - [Reproducibility](#reproducibility)
@@ -196,6 +198,7 @@ A merged model is **not required** for the provided inference script.
 | **Beam size** | 6 |
 | **Repetition penalty** | 1.15 |
 | **No-repeat n-gram size** | 3 |
+| **EOS token ID** | `1` (`<eos>`) — **do not use `<end_of_turn>` (106)**, see [EOS Token — Required Setting](#eos-token--required-setting) |
 | **Default batch size** | 16 |
 | **License** | GPL-3.0 |
 
@@ -527,7 +530,7 @@ Load QLoRA adapter
       ↓
 One-sentence diagnostic
       ↓
-Translate input
+Translate input  (eos_token_id=1 — required for correct scoring; see Generation Settings)
       ↓
 Validate predictions
       ↓
@@ -553,6 +556,9 @@ MAX_NEW_TOKENS = 232
 NUM_BEAMS = 6
 REPETITION_PENALTY = 1.15
 NO_REPEAT_NGRAM_SIZE = 3
+
+# Explicit EOS token — required, do not change. See explanation below.
+EOS_TOKEN_ID = 1
 ```
 
 Generation uses deterministic decoding:
@@ -572,6 +578,75 @@ If GPU memory is insufficient:
 ```bash
 python inference.py --batch-size 8
 ```
+
+## EOS Token — Required Setting
+
+**`eos_token_id` must be set to `1`, the tokenizer's `<eos>` token — not `106` (`<end_of_turn>`).**
+
+This looks counterintuitive at first, because the model was fine-tuned in a chat-style
+turn format where `<end_of_turn>` (`106`) is what naturally appears to mark the end of
+the model's response. It would seem reasonable to stop generation there instead. We
+tested both settings directly, and the results were the opposite of what that
+assumption predicts:
+
+| Setting | Generation length | Compute cost | Raw output | Score |
+|---|---|---|---|---|
+| `eos_token_id = 106` (`<end_of_turn>`) | Stops early | **Lower** — fewer tokens generated per sequence | Clean, single line, no trailing content | **Lower** |
+| `eos_token_id = 1` (`<eos>`) | Runs longer, often closer to `MAX_NEW_TOKENS` | **Higher** — more tokens generated per sequence, per beam | Often contains extra trailing lines after the real translation | **Higher (reported score)** |
+
+**Why this happens:** the model uses beam search (`NUM_BEAMS = 6`), which ranks
+candidate completions by their overall sequence score once each beam finishes.
+*When* a beam is allowed to stop changes that ranking, not just how long the output
+is. Stopping every beam early at `<end_of_turn>` forces beam search to select its
+best candidate from a smaller, differently-scored set of completions — and in our
+testing, that consistently picked a worse translation, even though the raw output
+looked cleaner (no trailing lines).
+
+Letting generation continue to the true `<eos>` token (`1`) means beam search
+evaluates the full, correctly-scored set of candidates before choosing the best one.
+The trade-off is that this costs noticeably more compute per sentence — sequences
+often run close to the `MAX_NEW_TOKENS = 232` cap instead of stopping early — but the
+resulting translations are measurably better. Because of this, `inference.py`:
+
+1. Explicitly sets `eos_token_id = 1` during generation (never `106`).
+2. Applies a post-processing **first-line cleanup** step to the decoded output —
+   taking only the first non-empty line and discarding anything generated after it
+   (e.g. stray `<unused...>` tokens, blank lines, or repeated content) — so the final
+   saved translation is clean, without having sacrificed beam-search quality to get
+   there.
+
+**If you change `eos_token_id` to `106` (or anything other than `1`) to reduce
+runtime, expect a meaningfully lower score than what is reported for this
+submission.** This has been verified directly, not assumed. If runtime is a concern,
+we recommend adjusting `--batch-size` or using more/faster GPU hardware instead of
+changing the EOS token or reducing `MAX_NEW_TOKENS` / `NUM_BEAMS`, both of which carry
+the same risk for the same underlying reason.
+
+## Output Cleanup — Removing Trailing Lines
+
+Because generation runs to the true `<eos>` token (`1`) rather than stopping at
+`<end_of_turn>`, the raw decoded output frequently contains **extra trailing lines
+after the actual translation** — blank lines, stray `<unused...>` tokens, or repeated
+content the model continues to generate before it finally reaches `<eos>`.
+
+`inference.py` handles this with a deliberate post-processing step: after decoding,
+it scans the output line by line and **keeps only the first non-empty, valid line**,
+discarding everything generated after it. This is not a bug workaround or a sign of
+a misbehaving model — it is an intentional part of the pipeline, applied consistently
+to every prediction, so that:
+
+- Beam search still sees the full, correctly-scored generation (see
+  [EOS Token — Required Setting](#eos-token--required-setting)), which is what
+  produces the higher score.
+- The final saved `kashmiri_text` output is a single clean line per sentence, with no
+  trailing junk, blank lines, or leftover special tokens.
+
+If you re-implement or modify `inference.py`, this trailing-line removal step must be
+kept. Skipping it will leave raw multi-line output in the final CSV, and skipping the
+long generation that causes it (by changing `eos_token_id`) will instead lower the
+score, as explained above. The two are linked: the extra length is the cost of the
+better score, and the cleanup step is what makes that trade-off invisible in the
+final output.
 
 ---
 
@@ -670,6 +745,11 @@ The adapter is loaded together with the original base model.
 A merged model is not required for the included inference script.
 
 The submitted code can therefore be tested directly against the submitted Hugging Face model weights.
+
+**Note on generation settings:** as described in
+[EOS Token — Required Setting](#eos-token--required-setting), the reported score
+depends on `eos_token_id = 1`. Reproducing the reported score requires running
+`inference.py` with its default generation settings unchanged.
 
 ---
 
