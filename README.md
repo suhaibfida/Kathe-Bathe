@@ -308,7 +308,7 @@ The script supports:
 The quickest way to verify that the **model, tokenizer, adapter, and inference code** are working is:
 
 ```bash
-python inference.py --text "She was a true visionary."
+python inference.py
 ```
 
 The script will:
