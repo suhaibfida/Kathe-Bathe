@@ -2,7 +2,7 @@
 
 ## English → Kashmiri Machine Translation
 
-KATHE / KatheBathe is an English → Kashmiri machine translation model developed by **Muqarab Farooq Vaid and Suhaib Fida** for **KATHE 2026**.
+KATHE / KatheBathe is an English → Kashmiri machine translation model developed by **Muqarib Farooq Vaid and Suhaib Fida** for **KATHE 2026**.
 
 The model is fine-tuned from **`sarvamai/sarvam-translate`** using **QLoRA / LoRA with PEFT**.
 
@@ -720,7 +720,7 @@ The final competition evaluation may use a private test set.
 
 **KATHE 2026**
 
-- **Muqarab Farooq Vaid**
+- **Muqarib Farooq Vaid**
 - **Suhaib Fida**
 
 **Year:** 2026
@@ -736,7 +736,7 @@ If you use KatheBathe or its training resources in research, projects, or tools,
 ```bibtex
 @misc{kathebathe2026,
     title={KATHE / KatheBathe: English-to-Kashmiri Translation Model},
-    author={Muqarab Farooq Vaid and Suhaib Fida},
+    author={Muqarib Farooq Vaid and Suhaib Fida},
     year={2026},
     publisher={Hugging Face}
 }
@@ -833,7 +833,7 @@ These resources were used in developing KatheBathe.
 
 **Authors:**
 
-- Muqarab Farooq Vaid
+- Muqarib Farooq Vaid
 - Suhaib Fida
 
 For questions or issues, use the model repository discussion/issues mechanism on Hugging Face.
