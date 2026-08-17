@@ -144,7 +144,7 @@ KatheBathe/Kathe-Bathe
 ## 3. Run the Inference Script
 
 ```bash
-python /kaggle/working/inference.py
+!python /kaggle/working/inference.py
 ```
 
 The script automatically loads:
