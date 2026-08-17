@@ -2,7 +2,7 @@
 
 <h2>NAAW : KatheBathe</h2>
 
-<h3> English → Kashmiri Machine Translation </h3>
+<h2> English → Kashmiri Machine Translation </h2>
 
 KATHE / KatheBathe is an English → Kashmiri machine translation model developed by **Muqarib Farooq Vaid and Suhaib Fida** for **KATHE 2026**.
 
