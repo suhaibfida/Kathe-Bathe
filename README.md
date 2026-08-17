@@ -6,7 +6,12 @@ KATHE / KatheBathe is an English → Kashmiri machine translation model develope
 
 The model is fine-tuned from **`sarvamai/sarvam-translate`** using **QLoRA / LoRA with PEFT**.
 
+<img width="1199" height="555" alt="image" src="https://github.com/user-attachments/assets/c29a465c-7ada-4e92-ae39-08dea2725cf1" />
+  LINK :https://excalidraw.com/#json=fmEi9loC9z-9HUeORrQ4Y,cBAFupy9-eVpeILLJf1Yjg
+
+
 ---
+
 
 # Table of Contents
 
