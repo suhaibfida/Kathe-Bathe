@@ -1,6 +1,4 @@
-## KATHE Competition 2026  
-
-<h2>NAAW : KatheBathe</h2>
+## KATHE Competition 2026  <h2>NAAW : KatheBathe</h2>
 
 <h2> English → Kashmiri Machine Translation </h2>
 
