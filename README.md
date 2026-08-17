@@ -29,7 +29,7 @@ LINK : https://excalidraw.com/#json=fmEi9loC9z-9HUeORrQ4Y,cBAFupy9-eVpeILLJf1Yjg
 - [Quick Inference Test](#quick-inference-test)
 - [Single-Sentence Inference](#single-sentence-inference)
 - [Batch Inference](#batch-inference)
-- [Kaggle Usage: Also preferred for easy check](#kaggle-usage)
+- [Kaggle Usage: { Also preferred for easy check }](#kaggle-usage)
 - [Input CSV](#input-csv)
 - [Manual CSV](#manual-csv)
 - [Custom Text](#custom-text)
