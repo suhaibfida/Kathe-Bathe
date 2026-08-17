@@ -1,17 +1,12 @@
-# KATHE 2026 / KatheBathe
+# KATHE / KatheBathe
 
 ## English → Kashmiri Machine Translation
 
-KATHE / KatheBathe is an English → Kashmiri machine translation model developed by **Muqarib Farooq Vaid and Suhaib Fida** for **KATHE 2026**.
+KATHE / KatheBathe is an English → Kashmiri machine translation model developed by **Muqarab Farooq Vaid and Suhaib Fida** for **KATHE 2026**.
 
 The model is fine-tuned from **`sarvamai/sarvam-translate`** using **QLoRA / LoRA with PEFT**.
 
-<img width="1199" height="555" alt="image" src="https://github.com/user-attachments/assets/c29a465c-7ada-4e92-ae39-08dea2725cf1" />
-  LINK :https://excalidraw.com/#json=fmEi9loC9z-9HUeORrQ4Y,cBAFupy9-eVpeILLJf1Yjg
-
-
 ---
-
 
 # Table of Contents
 
@@ -19,8 +14,8 @@ The model is fine-tuned from **`sarvamai/sarvam-translate`** using **QLoRA / LoR
   - [Hugging Face](#hugging-face)
   - [GitHub](#github)
 - [How to Run](#how-to-run)
-  - [Option 1 - Run from GitHub](#option-1---run-from-github)
-  - [Option 2 - Run from Hugging Face](#option-2---run-from-hugging-face)
+  - [Option 1 - Run from Hugging Face (Preferred)](#option-1---run-from-hugging-face-preferred)
+  - [Option 2 - Run from GitHub](#option-2---run-from-github)
 - [Automatic Model Download](#automatic-model-download)
 - [Model Information](#model-information)
 - [Methodology](#methodology)
@@ -36,8 +31,8 @@ The model is fine-tuned from **`sarvamai/sarvam-translate`** using **QLoRA / LoR
 - [Custom Text](#custom-text)
 - [Inference Flow](#inference-flow)
 - [Generation Settings](#generation-settings)
-  - [EOS Token — Required Setting](#eos-token--required-setting)
-  - [Output Cleanup — Removing Trailing Lines](#output-cleanup--removing-trailing-lines)
+  - [EOS Token - Required Setting](#eos-token---required-setting)
+  - [Output Cleanup - Removing Trailing Lines](#output-cleanup---removing-trailing-lines)
 - [Technical Details](#technical-details)
 - [Repository Structure](#repository-structure)
 - [Reproducibility](#reproducibility)
@@ -69,14 +64,14 @@ The Hugging Face repository contains:
 
 ## GitHub
 
-This repository contains:
-
-- `inference.py` — main inference script
-- `requirements.txt` — required Python packages
-- `README.md` — project documentation
-
-**GitHub Repository:**  
+**Repository:**  
 https://github.com/suhaibfida/Kathe-Bathe
+
+The GitHub repository contains:
+
+- `inference.py`
+- `requirements.txt`
+- `README.md`
 
 The GitHub inference script loads the submitted KatheBathe adapter from Hugging Face.
 
@@ -84,54 +79,113 @@ The GitHub inference script loads the submitted KatheBathe adapter from Hugging 
 
 # How to Run
 
-There are two ways to run the submitted model:
+There are two ways to run KatheBathe:
 
-- **Option 1:** Run from GitHub
-- **Option 2:** Run from Hugging Face
+- **Option 1 — Hugging Face (Preferred)**
+- **Option 2 — GitHub**
 
-## Option 1 - Run from GitHub
+> **Recommended:** We recommend **Option 1 (Hugging Face)** because it downloads the submitted `inference.py` directly from the Hugging Face model repository and uses the submitted model and adapter.
 
-### 1. Clone the repository
+---
+
+# Option 1 - Run from Hugging Face (Preferred)
+
+The preferred method is to download the submitted inference script directly from the KatheBathe Hugging Face repository.
+
+**Hugging Face Model:**
+
+https://huggingface.co/KatheBathe/Kathe-Bathe
+
+## 1. Install Dependencies
+
+Install the required packages:
+
+```bash
+pip install -r requirements.txt
+```
+
+If `huggingface_hub` is not already installed:
+
+```bash
+pip install -U huggingface_hub
+```
+
+## 2. Download `inference.py`
+
+Use `hf_hub_download` to download the exact submitted inference script:
+
+```python
+from huggingface_hub import hf_hub_download
+
+hf_hub_download(
+    repo_id="KatheBathe/Kathe-Bathe",
+    filename="inference.py",
+    local_dir="/kaggle/working",
+    force_download=True,
+)
+
+print("inference.py downloaded")
+```
+
+This downloads:
+
+```text
+KatheBathe/Kathe-Bathe
+        ↓
+   inference.py
+        ↓
+/kaggle/working/inference.py
+```
+
+## 3. Run the Inference Script
+
+```bash
+python /kaggle/working/inference.py
+```
+
+The script automatically loads:
+
+- Base model
+- KatheBathe adapter
+- Tokenizer
+- Model configuration
+
+from Hugging Face.
+
+You do **not** need to manually download the model weights.
+
+---
+
+# Option 2 - Run from GitHub
+
+The complete inference code is also available through GitHub.
+
+**GitHub Repository:**
+
+https://github.com/suhaibfida/Kathe-Bathe
+
+## 1. Clone the Repository
 
 ```bash
 git clone https://github.com/suhaibfida/Kathe-Bathe.git
 cd Kathe-Bathe
 ```
 
-### 2. Install dependencies
+## 2. Install Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3. Run the inference script
+## 3. Run the Inference Script
 
 ```bash
 python inference.py
 ```
 
-The script automatically loads the required model and adapter from Hugging Face.
+The GitHub `inference.py` loads the KatheBathe model and adapter from Hugging Face.
 
----
-
-## Option 2 - Run from Hugging Face
-
-The model and inference script are available directly on Hugging Face:
-
-https://huggingface.co/KatheBathe/Kathe-Bathe
-
-To run from Hugging Face:
-
-1. Open the Hugging Face repository.
-2. Download `inference.py`.
-3. Download `requirements.txt`.
-4. Install the required Python packages.
-5. Run the inference script.
-
-```bash
-pip install -r requirements.txt
-python inference.py --text "She was a true visionary."
-```
+The model weights do not need to be manually copied into the GitHub repository.
 
 ---
 
@@ -182,7 +236,7 @@ The first run may take longer because the model files need to be downloaded.
 
 Subsequent runs can reuse the locally cached files.
 
-> **Internet access is required when the required model files are not already available locally.**
+> **Internet access is required when the required model files are not already cached locally.**
 
 A merged model is **not required** for the provided inference script.
 
@@ -203,7 +257,7 @@ A merged model is **not required** for the provided inference script.
 | **Beam size** | 6 |
 | **Repetition penalty** | 1.15 |
 | **No-repeat n-gram size** | 3 |
-| **EOS token ID** | `1` (`<eos>`) — **do not use `<end_of_turn>` (106)**, see [EOS Token — Required Setting](#eos-token--required-setting) |
+| **EOS token ID** | `1` (`<eos>`) |
 | **Default batch size** | 16 |
 | **License** | GPL-3.0 |
 
@@ -264,7 +318,7 @@ Before running the inference script, you need:
 - Python
 - pip
 - An NVIDIA GPU with BF16 support for the submitted inference configuration
-- Internet access for downloading the model files if they are not already cached
+- Internet access for downloading model files if they are not already cached
 
 Install all Python dependencies:
 
@@ -281,6 +335,7 @@ accelerate
 sentencepiece
 safetensors
 pandas
+huggingface_hub
 ```
 
 The provided inference setup:
@@ -288,6 +343,7 @@ The provided inference setup:
 - Uses BF16 inference
 - Does not use 4-bit `bitsandbytes` quantization
 - Uses PEFT for loading the QLoRA adapter
+- Uses Hugging Face Hub for downloading the submitted inference script and model resources
 
 ---
 
@@ -308,6 +364,8 @@ The script supports:
 - Automatic Kaggle CSV detection
 - Manual CSV input
 - Output validation
+- EOS-controlled generation
+- Output cleanup
 
 ---
 
@@ -316,7 +374,7 @@ The script supports:
 The quickest way to verify that the **model, tokenizer, adapter, and inference code** are working is:
 
 ```bash
-python inference.py
+python inference.py --text "She was a true visionary."
 ```
 
 The script will:
@@ -429,7 +487,7 @@ Use an NVIDIA GPU with BF16 support.
 
 ## 2. Download `inference.py`
 
-The inference script can be downloaded directly from the Hugging Face repository:
+The preferred method is to download the exact submitted inference script directly from Hugging Face:
 
 ```python
 from huggingface_hub import hf_hub_download
@@ -442,6 +500,16 @@ hf_hub_download(
 )
 
 print("inference.py downloaded")
+```
+
+This downloads:
+
+```text
+KatheBathe/Kathe-Bathe
+        ↓
+   inference.py
+        ↓
+/kaggle/working/inference.py
 ```
 
 ## 3. Run
@@ -535,7 +603,7 @@ Load QLoRA adapter
       ↓
 One-sentence diagnostic
       ↓
-Translate input  (eos_token_id=1 — required for correct scoring; see Generation Settings)
+Translate input
       ↓
 Validate predictions
       ↓
@@ -562,7 +630,7 @@ NUM_BEAMS = 6
 REPETITION_PENALTY = 1.15
 NO_REPEAT_NGRAM_SIZE = 3
 
-# Explicit EOS token — required, do not change. See explanation below.
+# Explicit EOS token - required
 EOS_TOKEN_ID = 1
 ```
 
@@ -584,74 +652,85 @@ If GPU memory is insufficient:
 python inference.py --batch-size 8
 ```
 
-## EOS Token — Required Setting
+---
 
-**`eos_token_id` must be set to `1`, the tokenizer's `<eos>` token — not `106` (`<end_of_turn>`).**
+## EOS Token - Required Setting
 
-This looks counterintuitive at first, because the model was fine-tuned in a chat-style
-turn format where `<end_of_turn>` (`106`) is what naturally appears to mark the end of
-the model's response. It would seem reasonable to stop generation there instead. We
-tested both settings directly, and the results were the opposite of what that
-assumption predicts:
+**`eos_token_id` must be set to `1`, the tokenizer's `<eos>` token.**
 
-| Setting | Generation length | Compute cost | Raw output | Score |
-|---|---|---|---|---|
-| `eos_token_id = 106` (`<end_of_turn>`) | Stops early | **Lower** — fewer tokens generated per sequence | Clean, single line, no trailing content | **Lower** |
-| `eos_token_id = 1` (`<eos>`) | Runs longer, often closer to `MAX_NEW_TOKENS` | **Higher** — more tokens generated per sequence, per beam | Often contains extra trailing lines after the real translation | **Higher (reported score)** |
+Do **not** change it to `106`, which corresponds to `<end_of_turn>`.
 
-**Why this happens:** the model uses beam search (`NUM_BEAMS = 6`), which ranks
-candidate completions by their overall sequence score once each beam finishes.
-*When* a beam is allowed to stop changes that ranking, not just how long the output
-is. Stopping every beam early at `<end_of_turn>` forces beam search to select its
-best candidate from a smaller, differently-scored set of completions — and in our
-testing, that consistently picked a worse translation, even though the raw output
-looked cleaner (no trailing lines).
+The inference configuration uses:
 
-Letting generation continue to the true `<eos>` token (`1`) means beam search
-evaluates the full, correctly-scored set of candidates before choosing the best one.
-The trade-off is that this costs noticeably more compute per sentence — sequences
-often run close to the `MAX_NEW_TOKENS = 232` cap instead of stopping early — but the
-resulting translations are measurably better. Because of this, `inference.py`:
+```python
+eos_token_id = 1
+```
 
-1. Explicitly sets `eos_token_id = 1` during generation (never `106`).
-2. Applies a post-processing **first-line cleanup** step to the decoded output —
-   taking only the first non-empty line and discarding anything generated after it
-   (e.g. stray `<unused...>` tokens, blank lines, or repeated content) — so the final
-   saved translation is clean, without having sacrificed beam-search quality to get
-   there.
+The two settings behave differently:
 
-**If you change `eos_token_id` to `106` (or anything other than `1`) to reduce
-runtime, expect a meaningfully lower score than what is reported for this
-submission.** This has been verified directly, not assumed. If runtime is a concern,
-we recommend adjusting `--batch-size` or using more/faster GPU hardware instead of
-changing the EOS token or reducing `MAX_NEW_TOKENS` / `NUM_BEAMS`, both of which carry
-the same risk for the same underlying reason.
+| Setting | Behavior |
+|---|---|
+| `eos_token_id = 1` (`<eos>`) | Correct setting used for the submitted model |
+| `eos_token_id = 106` (`<end_of_turn>`) | Do not use for the submitted configuration |
 
-## Output Cleanup — Removing Trailing Lines
+In testing, using `<end_of_turn>` caused generation to stop earlier, but resulted in a lower reported score.
 
-Because generation runs to the true `<eos>` token (`1`) rather than stopping at
-`<end_of_turn>`, the raw decoded output frequently contains **extra trailing lines
-after the actual translation** — blank lines, stray `<unused...>` tokens, or repeated
-content the model continues to generate before it finally reaches `<eos>`.
+Using:
 
-`inference.py` handles this with a deliberate post-processing step: after decoding,
-it scans the output line by line and **keeps only the first non-empty, valid line**,
-discarding everything generated after it. This is not a bug workaround or a sign of
-a misbehaving model — it is an intentional part of the pipeline, applied consistently
-to every prediction, so that:
+```python
+eos_token_id = 1
+```
 
-- Beam search still sees the full, correctly-scored generation (see
-  [EOS Token — Required Setting](#eos-token--required-setting)), which is what
-  produces the higher score.
-- The final saved `kashmiri_text` output is a single clean line per sentence, with no
-  trailing junk, blank lines, or leftover special tokens.
+allows beam search to continue evaluating candidate sequences until the actual EOS token is reached.
 
-If you re-implement or modify `inference.py`, this trailing-line removal step must be
-kept. Skipping it will leave raw multi-line output in the final CSV, and skipping the
-long generation that causes it (by changing `eos_token_id`) will instead lower the
-score, as explained above. The two are linked: the extra length is the cost of the
-better score, and the cleanup step is what makes that trade-off invisible in the
-final output.
+The trade-off is:
+
+- Longer generation
+- Higher compute usage
+- More tokens may be generated
+- Some raw outputs may contain trailing content
+
+However, this setting produced the better reported score for the submitted configuration.
+
+Therefore:
+
+> **Do not change `eos_token_id = 1` to `106` if you want to reproduce the submitted configuration.**
+
+If runtime is a concern, adjust:
+
+- `--batch-size`
+- GPU hardware
+
+rather than changing the EOS token.
+
+---
+
+## Output Cleanup - Removing Trailing Lines
+
+Because generation uses the true `<eos>` token (`1`) rather than `<end_of_turn>` (`106`), the raw decoded output can sometimes contain extra trailing content.
+
+This may include:
+
+- Blank lines
+- Stray special tokens
+- `<unused...>` tokens
+- Repeated content
+- Additional generated lines
+
+The inference script handles this through post-processing.
+
+After decoding, the script keeps the first valid non-empty translation line and removes trailing content.
+
+This ensures that:
+
+- Beam search can use the full generation.
+- The EOS configuration remains unchanged.
+- The final translation is clean.
+- The output CSV contains a single translation line.
+
+If you re-implement or modify `inference.py`, keep this cleanup step.
+
+The cleanup step should **not** be replaced by changing the EOS token to `106`.
 
 ---
 
@@ -681,6 +760,7 @@ BF16 inference is designed for an NVIDIA CUDA GPU with BF16 support.
 - SentencePiece
 - Safetensors
 - PyTorch
+- Hugging Face Hub
 
 ---
 
@@ -705,6 +785,8 @@ The main inference script responsible for:
 - Batch inference
 - Prediction validation
 - Saving predictions
+- Using the required EOS configuration
+- Cleaning trailing generated output
 
 ## `requirements.txt`
 
@@ -712,7 +794,7 @@ Contains the Python packages required to run the inference script.
 
 ## `README.md`
 
-Contains the:
+Contains:
 
 - Model information
 - Methodology
@@ -720,6 +802,8 @@ Contains the:
 - Inference instructions
 - Dataset information
 - Reproducibility information
+- EOS configuration
+- Generation settings
 
 ---
 
@@ -751,10 +835,30 @@ A merged model is not required for the included inference script.
 
 The submitted code can therefore be tested directly against the submitted Hugging Face model weights.
 
-**Note on generation settings:** as described in
-[EOS Token — Required Setting](#eos-token--required-setting), the reported score
-depends on `eos_token_id = 1`. Reproducing the reported score requires running
-`inference.py` with its default generation settings unchanged.
+### Important Generation Configuration
+
+To reproduce the submitted inference configuration:
+
+```python
+eos_token_id = 1
+```
+
+Do not replace it with:
+
+```python
+eos_token_id = 106
+```
+
+The generation settings should otherwise remain unchanged:
+
+```python
+MAX_INPUT_LENGTH = 1024
+MAX_NEW_TOKENS = 232
+NUM_BEAMS = 6
+REPETITION_PENALTY = 1.15
+NO_REPEAT_NGRAM_SIZE = 3
+do_sample = False
+```
 
 ---
 
@@ -809,7 +913,7 @@ The final competition evaluation may use a private test set.
 
 **KATHE 2026**
 
-- **Muqarib Farooq Vaid**
+- **Muqarab Farooq Vaid**
 - **Suhaib Fida**
 
 **Year:** 2026
@@ -825,7 +929,7 @@ If you use KatheBathe or its training resources in research, projects, or tools,
 ```bibtex
 @misc{kathebathe2026,
     title={KATHE / KatheBathe: English-to-Kashmiri Translation Model},
-    author={Muqarib Farooq Vaid and Suhaib Fida},
+    author={Muqarab Farooq Vaid and Suhaib Fida},
     year={2026},
     publisher={Hugging Face}
 }
@@ -879,7 +983,7 @@ Please cite:
 ```bibtex
 @article{gala2023indictrans,
     title={IndicTrans2: Towards High-Quality and Accessible Machine Translation Models for all 22 Scheduled Indian Languages},
-    author={Jay Gala and Pranjal A Chitale and A K Raghavan and Varun Gumma and Sumanth Doddapaneni and Aswanth Kumar M and Janki Atul Nawale and Anupama Sujatha and Ratish Puduppully and Vivek Raghavan and Pratyush Kumar and Mitesh M Khapra and Raj Dabre and Anoop Kunchukuttan},
+    author={Jay Gala and Pranjal A Chitale and A K Raghavan and Varun Gumma and Sumanth Doddapaneni and Aswanth Kumar M and Janki Atul Nawale and Anupama Sujatha and Ratish Puduppully and Vivek Raghavan and Pratyush Kumar and Mitesh K Khapra and Raj Dabre and Anoop Kunchukuttan},
     journal={Transactions on Machine Learning Research},
     issn={2835-8856},
     year={2023},
@@ -922,7 +1026,7 @@ These resources were used in developing KatheBathe.
 
 **Authors:**
 
-- Muqarib Farooq Vaid
+- Muqarab Farooq Vaid
 - Suhaib Fida
 
 For questions or issues, use the model repository discussion/issues mechanism on Hugging Face.
