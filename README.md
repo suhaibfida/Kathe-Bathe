@@ -88,8 +88,8 @@ There are two ways to run the submitted model:
 ### 1. Clone the repository
 
 ```bash
-git clone <YOUR_GITHUB_REPOSITORY_URL>
-cd KATHE-KatheBathe
+git clone https://github.com/suhaibfida/Kathe-Bathe.git
+cd Kathe-Bathe
 ```
 
 ### 2. Install dependencies
