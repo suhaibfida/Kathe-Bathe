@@ -1,4 +1,5 @@
-# Kathe-Bathe
+# KATHE Competition 2026
+<h1>KatheBathe</h1>
 
 **English → Kashmiri Machine Translation**
 
@@ -6,7 +7,31 @@ KATHE / KatheBathe is an English → Kashmiri translation model developed by **M
 
 The model is fine-tuned from **`sarvamai/sarvam-translate`** using **QLoRA / LoRA with PEFT**.
 
-## Model
+---
+
+## Table of Contents
+
+* [Model](#model)
+* [Methodology](#methodology)
+* [Training Data](#training-data)
+* [Installation](#installation)
+* [Model Loading](#model-loading)
+* [Single-Sentence Inference](#single-sentence-inference)
+* [Batch Inference](#batch-inference)
+* [Kaggle Usage](#kaggle-usage)
+* [Generation Configuration](#generation-configuration)
+* [Inference Pipeline](#inference-pipeline)
+* [Repository Structure](#repository-structure)
+* [Requirements](#requirements)
+* [Reproducibility](#reproducibility)
+* [Limitations](#limitations)
+* [Team](#team)
+* [License](#license)
+* [Citation](#citation)
+
+---
+
+# Model
 
 * **Task:** English → Kashmiri translation
 * **Base model:** `sarvamai/sarvam-translate`
@@ -20,9 +45,9 @@ The model is fine-tuned from **`sarvamai/sarvam-translate`** using **QLoRA / LoR
 
 The trained adapter weights are hosted on Hugging Face:
 
-**`KatheBathe/Kathe-Bathe`**
+**KatheBathe/Kathe-Bathe**
 
-The inference script loads the base model and the KatheBathe adapter from the Hugging Face repository.
+The inference script loads the base model and KatheBathe adapter from the Hugging Face repository.
 
 ---
 
@@ -46,9 +71,7 @@ KatheBathe Adapter
 English → Kashmiri Translation
 ```
 
-QLoRA was used to fine-tune the model while keeping the base model frozen and training a relatively small number of additional parameters.
-
-The resulting adapter is loaded on top of the original `sarvamai/sarvam-translate` model during inference.
+QLoRA was used to fine-tune the model while keeping the base model frozen and training a smaller number of additional parameters.
 
 ---
 
@@ -58,27 +81,15 @@ The model was fine-tuned using:
 
 ### Kashmiri-English Parallel Corpus
 
-**`SMUQamar/Kashmiri-English-Parallel-Corpus`**
+**SMUQamar/Kashmiri-English-Parallel-Corpus**
 
 https://huggingface.co/datasets/SMUQamar/Kashmiri-English-Parallel-Corpus
 
 ### BPCC
 
-**`ai4bharat/BPCC`**
+**ai4bharat/BPCC**
 
 https://huggingface.co/datasets/ai4bharat/BPCC
-
----
-
-# Inference
-
-The repository contains the inference implementation used to load the model and generate translations.
-
-The script supports:
-
-1. **Single-sentence inference**
-2. **Batch CSV inference**
-3. **Automatic Kaggle CSV detection**
 
 ---
 
@@ -91,13 +102,13 @@ git clone <YOUR_GITHUB_REPOSITORY_URL>
 cd KATHE-KatheBathe
 ```
 
-Install the dependencies:
+Install dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-Or install them directly:
+Or:
 
 ```bash
 pip install \
@@ -113,7 +124,7 @@ pip install \
 
 # Model Loading
 
-The inference script loads:
+The inference script loads the submitted model as:
 
 ```text
 Base Model
@@ -125,7 +136,7 @@ KatheBathe QLoRA Adapter
 Ready for inference
 ```
 
-The adapter weights are loaded from the submitted Hugging Face repository.
+The adapter weights are loaded from the Hugging Face repository.
 
 A merged model is not required.
 
@@ -133,14 +144,12 @@ A merged model is not required.
 
 # Single-Sentence Inference
 
-Example:
+Run:
 
 ```bash
 python inference.py \
     --text "She was a true visionary."
 ```
-
-The script loads the base model and KatheBathe adapter and generates the Kashmiri translation.
 
 Example:
 
@@ -179,26 +188,17 @@ python inference.py \
     --output predictions.csv
 ```
 
-The output contains:
+Output:
 
 ```text
 ID,kashmiri_text
-```
-
-Example:
-
-```csv
-ID,kashmiri_text
-1,سۄ ٲس اکھ حقیقی بصیرت تھون واجیٚنۍ۔
-2,...
-3,...
 ```
 
 ---
 
 # Kaggle Usage
 
-Enable a GPU in Kaggle:
+Enable a GPU:
 
 ```text
 Notebook
@@ -221,7 +221,7 @@ The script can automatically search:
 
 for compatible input files.
 
-If multiple CSV files are available, an input file can be specified manually:
+For a specific file:
 
 ```bash
 python inference.py \
@@ -232,8 +232,6 @@ python inference.py \
 ---
 
 # Generation Configuration
-
-The inference configuration used for the submitted model is:
 
 ```text
 Maximum input length:     1024
@@ -246,13 +244,13 @@ Default batch size:       16
 Inference dtype:          BF16
 ```
 
-Generation uses deterministic decoding:
+Generation uses:
 
 ```python
 do_sample=False
 ```
 
-If GPU memory is insufficient, the batch size can be reduced:
+If GPU memory is insufficient:
 
 ```bash
 python inference.py --batch-size 8
@@ -288,15 +286,6 @@ Validate predictions
 Save output CSV
 ```
 
-For batch inference, the script validates the generated output, including:
-
-* Prediction count
-* Empty predictions
-* ID order
-* Output columns
-* Saved CSV row count
-* Saved CSV IDs
-
 ---
 
 # Repository Structure
@@ -309,13 +298,13 @@ KATHE-KatheBathe/
 └── requirements.txt
 ```
 
-The trained model weights are hosted separately on Hugging Face.
+The trained model weights are hosted on Hugging Face.
 
 ---
 
 # Requirements
 
-The main software dependencies are:
+Main dependencies:
 
 ```text
 Python
@@ -334,25 +323,23 @@ BF16 inference requires a compatible NVIDIA GPU.
 
 # Reproducibility
 
-The submitted inference code is intended to load the same model adapter uploaded to Hugging Face.
-
-The complete inference setup therefore consists of:
+The submitted inference code is designed to load the same adapter uploaded to Hugging Face.
 
 ```text
 GitHub
-    │
-    └── Inference code
-            │
-            ▼
+   │
+   └── inference.py
+          │
+          ▼
 Hugging Face
-    │
-    ├── KatheBathe adapter
-    └── Tokenizer/configuration
-            │
-            ▼
+   │
+   ├── KatheBathe Adapter
+   └── Tokenizer / Configuration
+          │
+          ▼
 sarvamai/sarvam-translate
-            │
-            ▼
+          │
+          ▼
 English → Kashmiri
 ```
 
@@ -389,19 +376,6 @@ For important translations, human review is recommended.
 # License
 
 The model is released under the **GPL-3.0** license.
-
----
-
-# Acknowledgements
-
-We acknowledge the creators of:
-
-* `sarvamai/sarvam-translate`
-* `SMUQamar/Kashmiri-English-Parallel-Corpus`
-* `ai4bharat/BPCC`
-* Gemma 3
-
-Their models and datasets were important resources in developing KatheBathe.
 
 ---
 
