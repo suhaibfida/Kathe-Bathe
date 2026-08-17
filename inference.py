@@ -1,27 +1,40 @@
 #!/usr/bin/env python
+
 """
 KATHE / KatheBathe
 English -> Kashmiri inference using the Hugging Face QLoRA adapter.
 
 INPUT MODES
-============
+===========
 
 1. Automatic Kaggle CSV:
+
        python inference.py
 
-   Searches /kaggle/input/**/*.csv and automatically selects the
-   only CSV containing both:
+   The script first runs a one-sentence model test.
+
+   If a compatible CSV exists under:
+
+       /kaggle/input/**/*.csv
+
+   it automatically selects the only CSV containing both:
+
        ID
        sentence
 
    The CSV filename can be anything.
 
+   If no CSV exists, the script finishes successfully after
+   the one-sentence model test.
+
 2. Specific CSV:
+
        python inference.py \
            --input /kaggle/input/my-dataset/myfile.csv \
            --output /kaggle/working/predictions.csv
 
 3. Custom examples:
+
        python inference.py \
            --text "She was a true visionary." \
            --text "The weather is beautiful today."
@@ -30,20 +43,23 @@ OUTPUT
 ======
 
 CSV columns:
+
     ID,kashmiri_text
 
 MODEL
 =====
 
-Uses BF16 inference, matching the proven KATHE scoring setup.
+Uses BF16 inference, matching the KATHE scoring setup.
 
 Only ONE diagnostic sentence is tested before full inference.
 No 10-row sanity test is performed.
 """
 
+
 import argparse
 import glob
 import os
+import sys
 
 import pandas as pd
 import torch
@@ -83,12 +99,16 @@ DEFAULT_OUTPUT = (
 
 REQUIRED_COLUMNS = {"ID", "sentence"}
 
+# The diagnostic sentence used to verify the model.
+DIAGNOSTIC_SENTENCE = "She was a true visionary."
+
 
 # ============================================================
 # ARGUMENTS
 # ============================================================
 
 def parse_args():
+
     parser = argparse.ArgumentParser(
         description=(
             "KatheBathe English -> Kashmiri "
@@ -141,45 +161,54 @@ def parse_args():
 
 def find_input_csv(explicit_path=None):
 
+    # --------------------------------------------------------
+    # Explicit input path
+    # --------------------------------------------------------
+
     if explicit_path:
 
         if not os.path.isfile(explicit_path):
+
             raise FileNotFoundError(
                 f"Input file not found:\n{explicit_path}"
             )
 
         return explicit_path
 
+    # --------------------------------------------------------
+    # Kaggle input directory
+    # --------------------------------------------------------
 
     if not os.path.isdir("/kaggle/input"):
-        raise FileNotFoundError(
-            "No --input was provided and /kaggle/input "
-            "does not exist. Use --input PATH or --text."
-        )
 
+        return None
 
     print("\n" + "=" * 70)
     print("AUTOMATIC CSV DISCOVERY")
     print("=" * 70)
-
 
     csv_files = glob.glob(
         "/kaggle/input/**/*.csv",
         recursive=True,
     )
 
-
     print("CSV files found:", len(csv_files))
 
-
+    # No CSV is not an error anymore.
+    # The one-sentence model test can still run.
     if not csv_files:
-        raise FileNotFoundError(
-            "No CSV files were found under /kaggle/input/."
+
+        print(
+            "\nNo CSV files were found under /kaggle/input/."
         )
 
+        print(
+            "The one-sentence model test will still be run."
+        )
+
+        return None
 
     candidates = []
-
 
     for path in csv_files:
 
@@ -191,7 +220,6 @@ def find_input_csv(explicit_path=None):
             )
 
             columns = set(preview.columns)
-
 
             if REQUIRED_COLUMNS.issubset(columns):
 
@@ -208,7 +236,6 @@ def find_input_csv(explicit_path=None):
                     list(preview.columns),
                 )
 
-
         except Exception as exc:
 
             print(
@@ -218,18 +245,35 @@ def find_input_csv(explicit_path=None):
                 str(exc),
             )
 
-
+    # No compatible CSV.
+    # Again, allow the model test to run.
     if not candidates:
-        raise FileNotFoundError(
-            "\nNo compatible CSV was found.\n\n"
-            "The CSV must contain:\n"
-            "    ID\n"
-            "    sentence\n\n"
-            "Or use --input PATH."
+
+        print(
+            "\nNo compatible CSV was found."
         )
 
+        print(
+            "The CSV must contain:"
+        )
 
+        print(
+            "    ID"
+        )
+
+        print(
+            "    sentence"
+        )
+
+        print(
+            "\nThe one-sentence model test will still be run."
+        )
+
+        return None
+
+    # More than one compatible CSV.
     if len(candidates) > 1:
+
         raise RuntimeError(
             "\nMultiple compatible CSV files were found:\n\n"
             + "\n".join(
@@ -240,7 +284,6 @@ def find_input_csv(explicit_path=None):
             "The script will not guess.\n"
             "Use --input PATH to select the correct file."
         )
-
 
     selected = candidates[0]
 
@@ -258,7 +301,6 @@ def create_text_dataframe(texts):
     if not texts:
         return None
 
-
     return pd.DataFrame(
         {
             "ID": range(1, len(texts) + 1),
@@ -273,23 +315,25 @@ def create_text_dataframe(texts):
 
 def validate_input(df):
 
-    required_columns = ["ID", "sentence"]
-
+    required_columns = [
+        "ID",
+        "sentence",
+    ]
 
     for column in required_columns:
 
         if column not in df.columns:
+
             raise ValueError(
                 f"Missing required column: {column}. "
                 f"Expected columns: {required_columns}"
             )
 
-
     if df["sentence"].isna().any():
+
         raise ValueError(
             "Input CSV contains NULL sentences."
         )
-
 
     if (
         df["sentence"]
@@ -298,6 +342,7 @@ def validate_input(df):
         .eq("")
         .any()
     ):
+
         raise ValueError(
             "Input CSV contains empty sentences."
         )
@@ -313,29 +358,29 @@ def load_tokenizer():
     print("LOADING TOKENIZER")
     print("=" * 70)
 
+    print("Tokenizer source:", ADAPTER)
 
     tokenizer = AutoTokenizer.from_pretrained(
         ADAPTER,
         trust_remote_code=True,
     )
 
-
     tokenizer.padding_side = "left"
 
-
     if hasattr(tokenizer, "add_bos_token"):
+
         tokenizer.add_bos_token = False
 
-
     if tokenizer.pad_token_id is None:
+
         raise RuntimeError(
             "Tokenizer has no pad_token_id."
         )
 
-
     print("Tokenizer loaded.")
     print("Vocab size:", len(tokenizer))
-
+    print("EOS token:", repr(tokenizer.eos_token))
+    print("EOS token ID:", tokenizer.eos_token_id)
 
     return tokenizer
 
@@ -347,20 +392,18 @@ def load_tokenizer():
 def load_model():
 
     if not torch.cuda.is_available():
+
         raise RuntimeError(
             "CUDA GPU is not available. "
             "This BF16 inference script requires "
             "an NVIDIA GPU."
         )
 
-
     print("\n" + "=" * 70)
     print("LOADING BASE MODEL")
     print("=" * 70)
 
-
     print("Base model:", BASE_MODEL)
-
 
     base_model = AutoModelForCausalLM.from_pretrained(
         BASE_MODEL,
@@ -369,33 +412,25 @@ def load_model():
         trust_remote_code=True,
     )
 
-
     base_model.eval()
 
-
     print("Base model loaded.")
-
 
     print("\n" + "=" * 70)
     print("LOADING QLORA ADAPTER")
     print("=" * 70)
 
-
     print("Adapter:", ADAPTER)
-
 
     model = PeftModel.from_pretrained(
         base_model,
         ADAPTER,
     )
 
-
     model.eval()
-
 
     print("QLoRA adapter loaded.")
     print("COMPLETE MODEL LOADED FROM HUGGING FACE")
-
 
     return model
 
@@ -410,14 +445,11 @@ def clean_output(decoded):
 
         line = line.strip()
 
-
         if not line:
             continue
 
-
         if line.startswith("<unused"):
             continue
-
 
         if line in {
             "<pad>",
@@ -426,9 +458,7 @@ def clean_output(decoded):
         }:
             continue
 
-
         return line
-
 
     return ""
 
@@ -448,9 +478,7 @@ def translate_batch(
         for x in sources
     ]
 
-
     prompts = []
-
 
     for source in sources:
 
@@ -465,16 +493,13 @@ def translate_batch(
             },
         ]
 
-
         prompt = tokenizer.apply_chat_template(
             messages,
             tokenize=False,
             add_generation_prompt=True,
         )
 
-
         prompts.append(prompt)
-
 
     inputs = tokenizer(
         prompts,
@@ -485,17 +510,14 @@ def translate_batch(
         add_special_tokens=False,
     )
 
-
     input_device = next(
         model.parameters()
     ).device
-
 
     inputs = {
         key: value.to(input_device)
         for key, value in inputs.items()
     }
-
 
     # --------------------------------------------------------
     # NaN / Inf diagnostic
@@ -508,9 +530,7 @@ def translate_batch(
             use_cache=False,
         )
 
-
         logits = check.logits
-
 
     if not torch.isfinite(logits).all():
 
@@ -518,12 +538,10 @@ def translate_batch(
             ~torch.isfinite(logits)
         ).sum().item()
 
-
         raise RuntimeError(
             "NaN/Inf logits detected. "
             f"Bad values: {bad_count}"
         )
-
 
     # --------------------------------------------------------
     # Generation
@@ -540,17 +558,17 @@ def translate_batch(
             repetition_penalty=REPETITION_PENALTY,
             no_repeat_ngram_size=NO_REPEAT_NGRAM_SIZE,
             pad_token_id=tokenizer.pad_token_id,
+
+            # Use the tokenizer's actual EOS token.
+            # For the submitted configuration this is EOS ID 1.
             eos_token_id=tokenizer.eos_token_id,
         )
-
 
     prompt_length = (
         inputs["input_ids"].shape[1]
     )
 
-
     results = []
-
 
     for i in range(len(sources)):
 
@@ -558,23 +576,20 @@ def translate_batch(
             prompt_length:
         ]
 
-
         decoded = tokenizer.decode(
             generated_tokens,
             skip_special_tokens=True,
         )
 
-
         results.append(
             clean_output(decoded)
         )
-
 
     return results
 
 
 # ============================================================
-# ONE-SENTENCE TEST ONLY
+# ONE-SENTENCE TEST
 # ============================================================
 
 def run_one_sentence_test(
@@ -586,9 +601,7 @@ def run_one_sentence_test(
     print("ONE-SENTENCE TEST")
     print("=" * 70)
 
-
-    sentence = "She was a true visionary."
-
+    sentence = DIAGNOSTIC_SENTENCE
 
     result = translate_batch(
         model,
@@ -596,23 +609,22 @@ def run_one_sentence_test(
         [sentence],
     )[0]
 
-
     print("\nEnglish:")
     print(sentence)
 
-
     print("\nKashmiri:")
-    print(repr(result))
-
+    print(result)
 
     if not result.strip():
+
         raise RuntimeError(
             "STOP: one-sentence test "
             "produced empty output."
         )
 
-
     print("\nONE-SENTENCE TEST PASSED")
+
+    return result
 
 
 # ============================================================
@@ -632,17 +644,13 @@ def run_full_translation(
         .tolist()
     )
 
-
     predictions = []
 
-
     total = len(sources)
-
 
     print("\n" + "=" * 70)
     print("FULL TRANSLATION")
     print("=" * 70)
-
 
     for start in range(
         0,
@@ -655,9 +663,7 @@ def run_full_translation(
             total,
         )
 
-
         batch = sources[start:end]
-
 
         batch_predictions = translate_batch(
             model,
@@ -665,23 +671,19 @@ def run_full_translation(
             batch,
         )
 
-
         if len(batch_predictions) != len(batch):
 
             raise RuntimeError(
                 f"Batch mismatch: {start}:{end}"
             )
 
-
         predictions.extend(
             batch_predictions
         )
 
-
         print(
             f"{len(predictions):,}/{total:,}"
         )
-
 
     return predictions
 
@@ -702,24 +704,20 @@ def create_submission(
             f"got {len(predictions)}."
         )
 
-
     empty_count = sum(
         not str(x).strip()
         for x in predictions
     )
 
-
     print("\nPrediction check:")
     print("Predictions:", len(predictions))
     print("Empty predictions:", empty_count)
-
 
     if empty_count > 0:
 
         raise RuntimeError(
             "Empty predictions found. Stopping."
         )
-
 
     submission = pd.DataFrame(
         {
@@ -728,24 +726,23 @@ def create_submission(
         }
     )
 
-
     if (
         submission["ID"].tolist()
         != df["ID"].tolist()
     ):
+
         raise RuntimeError(
             "ID order changed."
         )
-
 
     if list(submission.columns) != [
         "ID",
         "kashmiri_text",
     ]:
+
         raise RuntimeError(
             "Unexpected output columns."
         )
-
 
     return submission
 
@@ -763,30 +760,25 @@ def save_and_verify(
         os.path.abspath(output_path)
     )
 
-
     os.makedirs(
         output_dir,
         exist_ok=True,
     )
-
 
     submission.to_csv(
         output_path,
         index=False,
     )
 
-
     check = pd.read_csv(
         output_path
     )
-
 
     if len(check) != len(submission):
 
         raise RuntimeError(
             "Saved CSV has the wrong number of rows."
         )
-
 
     if list(check.columns) != [
         "ID",
@@ -797,7 +789,6 @@ def save_and_verify(
             "Saved CSV has incorrect columns."
         )
 
-
     if (
         check["ID"].tolist()
         != submission["ID"].tolist()
@@ -806,7 +797,6 @@ def save_and_verify(
         raise RuntimeError(
             "Saved CSV IDs do not match input IDs."
         )
-
 
     if (
         check["kashmiri_text"]
@@ -820,144 +810,22 @@ def save_and_verify(
             "Saved CSV contains empty translations."
         )
 
-
     print("\nSaved and verified:")
     print(output_path)
 
 
 # ============================================================
-# MAIN
+# PRINT FIRST 10 RESULTS
 # ============================================================
 
-def main():
-
-    args = parse_args()
-
-
-    if args.batch_size < 1:
-
-        raise ValueError(
-            "--batch-size must be at least 1."
-        )
-
-
-    if args.input and args.text:
-
-        raise ValueError(
-            "Use either --input or --text, not both."
-        )
-
-
-    # --------------------------------------------------------
-    # Select input
-    # --------------------------------------------------------
-
-    if args.text:
-
-        test_df = create_text_dataframe(
-            args.text
-        )
-
-        input_description = "Direct custom text"
-
-
-    else:
-
-        input_path = find_input_csv(
-            args.input
-        )
-
-
-        print(
-            "\nInput selected:",
-            input_path,
-        )
-
-
-        test_df = pd.read_csv(
-            input_path
-        )
-
-
-        input_description = input_path
-
-
-    # --------------------------------------------------------
-    # Validate input
-    # --------------------------------------------------------
-
-    print("\n" + "=" * 70)
-    print("INPUT VALIDATION")
-    print("=" * 70)
-
-
-    print("Input:", input_description)
-    print("Rows:", len(test_df))
-    print("Columns:", list(test_df.columns))
-
-
-    validate_input(test_df)
-
-
-    print("Input validation: PASSED")
-
-
-    # --------------------------------------------------------
-    # Load tokenizer and model
-    # --------------------------------------------------------
-
-    tokenizer = load_tokenizer()
-
-    model = load_model()
-
-
-    # --------------------------------------------------------
-    # ONLY ONE diagnostic sentence
-    # --------------------------------------------------------
-
-    run_one_sentence_test(
-        model,
-        tokenizer,
-    )
-
-
-    # --------------------------------------------------------
-    # Full inference
-    # --------------------------------------------------------
-
-    predictions = run_full_translation(
-        model,
-        tokenizer,
-        test_df,
-        args.batch_size,
-    )
-
-
-    # --------------------------------------------------------
-    # Create submission
-    # --------------------------------------------------------
-
-    submission = create_submission(
-        test_df,
-        predictions,
-    )
-
-
-    print("\n" + "=" * 70)
-    print("SUBMISSION VALIDATION PASSED")
-    print("=" * 70)
-
-
-    save_and_verify(
-        submission,
-        args.output,
-    )
-
+def print_first_results(
+    test_df,
+    submission,
+):
 
     print("\n" + "=" * 70)
     print("FIRST 10 RESULTS")
     print("=" * 70)
-
 
     for i in range(
         min(10, len(submission))
@@ -981,16 +849,255 @@ def main():
         )
 
 
+# ============================================================
+# MAIN
+# ============================================================
+
+def main():
+
+    args = parse_args()
+
+    if args.batch_size < 1:
+
+        raise ValueError(
+            "--batch-size must be at least 1."
+        )
+
+    if args.input and args.text:
+
+        raise ValueError(
+            "Use either --input or --text, not both."
+        )
+
+    # --------------------------------------------------------
+    # LOAD TOKENIZER AND MODEL FIRST
+    # --------------------------------------------------------
+    #
+    # This is intentionally done BEFORE CSV discovery.
+    #
+    # Therefore:
+    #
+    #     python inference.py
+    #
+    # can test the model even when there is no CSV.
+    # --------------------------------------------------------
+
+    tokenizer = load_tokenizer()
+
+    model = load_model()
+
+    # --------------------------------------------------------
+    # ALWAYS RUN ONE-SENTENCE MODEL TEST
+    # --------------------------------------------------------
+
+    run_one_sentence_test(
+        model,
+        tokenizer,
+    )
+
+    # --------------------------------------------------------
+    # DIRECT CUSTOM TEXT
+    # --------------------------------------------------------
+
+    if args.text:
+
+        print("\n" + "=" * 70)
+        print("CUSTOM TEXT INFERENCE")
+        print("=" * 70)
+
+        results = translate_batch(
+            model,
+            tokenizer,
+            args.text,
+        )
+
+        for i, (source, result) in enumerate(
+            zip(args.text, results),
+            start=1,
+        ):
+
+            print("\n" + "-" * 70)
+
+            print(
+                f"Example {i}"
+            )
+
+            print(
+                "English:",
+                source,
+            )
+
+            print(
+                "Kashmiri:",
+                result,
+            )
+
+        print("\n" + "=" * 70)
+        print("CUSTOM INFERENCE PASSED")
+        print("=" * 70)
+
+        return
+
+    # --------------------------------------------------------
+    # SELECT INPUT CSV
+    # --------------------------------------------------------
+
+    input_path = find_input_csv(
+        args.input
+    )
+
+    # --------------------------------------------------------
+    # NO CSV
+    # --------------------------------------------------------
+    #
+    # This is now a successful standalone model test.
+    # --------------------------------------------------------
+
+    if input_path is None:
+
+        print("\n" + "=" * 70)
+        print("MODEL TEST COMPLETED")
+        print("=" * 70)
+
+        print(
+            "\nNo input CSV was provided or found."
+        )
+
+        print(
+            "The one-sentence model test passed."
+        )
+
+        print(
+            "\nTo run full CSV inference, provide a CSV "
+            "containing:"
+        )
+
+        print(
+            "    ID"
+        )
+
+        print(
+            "    sentence"
+        )
+
+        print(
+            "\nExample:"
+        )
+
+        print(
+            "python inference.py "
+            "--input /path/to/test.csv"
+        )
+
+        print(
+            "\nMODEL IS WORKING"
+        )
+
+        return
+
+    # --------------------------------------------------------
+    # LOAD CSV
+    # --------------------------------------------------------
+
+    print(
+        "\nInput selected:",
+        input_path,
+    )
+
+    test_df = pd.read_csv(
+        input_path
+    )
+
+    input_description = input_path
+
+    # --------------------------------------------------------
+    # INPUT VALIDATION
+    # --------------------------------------------------------
+
+    print("\n" + "=" * 70)
+    print("INPUT VALIDATION")
+    print("=" * 70)
+
+    print(
+        "Input:",
+        input_description,
+    )
+
+    print(
+        "Rows:",
+        len(test_df),
+    )
+
+    print(
+        "Columns:",
+        list(test_df.columns),
+    )
+
+    validate_input(test_df)
+
+    print(
+        "Input validation: PASSED"
+    )
+
+    # --------------------------------------------------------
+    # FULL INFERENCE
+    # --------------------------------------------------------
+
+    predictions = run_full_translation(
+        model,
+        tokenizer,
+        test_df,
+        args.batch_size,
+    )
+
+    # --------------------------------------------------------
+    # CREATE SUBMISSION
+    # --------------------------------------------------------
+
+    submission = create_submission(
+        test_df,
+        predictions,
+    )
+
+    print("\n" + "=" * 70)
+    print("SUBMISSION VALIDATION PASSED")
+    print("=" * 70)
+
+    # --------------------------------------------------------
+    # SAVE + VERIFY
+    # --------------------------------------------------------
+
+    save_and_verify(
+        submission,
+        args.output,
+    )
+
+    # --------------------------------------------------------
+    # PRINT FIRST 10 RESULTS
+    # --------------------------------------------------------
+
+    print_first_results(
+        test_df,
+        submission,
+    )
+
+    # --------------------------------------------------------
+    # FINAL STATUS
+    # --------------------------------------------------------
+
     print("\n" + "=" * 70)
     print("ALL CHECKS PASSED")
     print("=" * 70)
-
 
     print(
         "Saved:",
         args.output,
     )
 
+
+# ============================================================
+# ENTRY POINT
+# ============================================================
 
 if __name__ == "__main__":
     main()
