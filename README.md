@@ -1,15 +1,12 @@
-## KATHE Competition 2026 / NAAW: KatheBathe
+# KATHE / KatheBathe
 
-<h2> English → Kashmiri Machine Translation </h2>
+## English → Kashmiri Machine Translation
 
 KATHE / KatheBathe is an English → Kashmiri machine translation model developed by **Muqarib Farooq Vaid and Suhaib Fida** for **KATHE 2026**.
 
 The model is fine-tuned from **`sarvamai/sarvam-translate`** using **QLoRA / LoRA with PEFT**.
 
 ---
-<img width="1199" height="555" alt="image" src="https://github.com/user-attachments/assets/81c86ab7-8227-4759-bbde-dce09453f216" />
-LINK : https://excalidraw.com/#json=fmEi9loC9z-9HUeORrQ4Y,cBAFupy9-eVpeILLJf1Yjg
-
 
 # Table of Contents
 
@@ -45,11 +42,12 @@ LINK : https://excalidraw.com/#json=fmEi9loC9z-9HUeORrQ4Y,cBAFupy9-eVpeILLJf1Yjg
 - [License](#license)
 - [Acknowledgements](#acknowledgements)
 - [Model Card Authors](#model-card-authors)
+
 ---
 
-# 🔗 Links
+# Links
 
-## 🤗 Hugging Face
+## Hugging Face
 
 **Model:**  
 https://huggingface.co/KatheBathe/Kathe-Bathe
@@ -62,7 +60,7 @@ The Hugging Face repository contains:
 - `inference.py`
 - Model documentation
 
-## 💻 GitHub
+## GitHub
 
 This repository contains:
 
@@ -70,18 +68,21 @@ This repository contains:
 - `requirements.txt` — required Python packages
 - `README.md` — project documentation
 
+**GitHub Repository:**  
+https://github.com/suhaibfida/Kathe-Bathe
+
 The GitHub inference script loads the submitted KatheBathe adapter from Hugging Face.
 
 ---
 
-# 🚀 How to Run
+# How to Run
 
 There are two ways to run the submitted model:
 
 - **Option 1:** Run from GitHub
 - **Option 2:** Run from Hugging Face
 
-## Option 1 — Run from GitHub
+## Option 1 - Run from GitHub
 
 ### 1. Clone the repository
 
@@ -106,7 +107,7 @@ The script automatically loads the required model and adapter from Hugging Face.
 
 ---
 
-## Option 2 — Run from Hugging Face
+## Option 2 - Run from Hugging Face
 
 The model and inference script are available directly on Hugging Face:
 
@@ -127,7 +128,7 @@ python inference.py --text "She was a true visionary."
 
 ---
 
-# 📥 Automatic Model Download
+# Automatic Model Download
 
 You **do not need to manually download the model weights**.
 
@@ -180,7 +181,7 @@ A merged model is **not required** for the provided inference script.
 
 ---
 
-# 📋 Model Information
+# Model Information
 
 | Configuration | Value |
 |---|---|
@@ -200,7 +201,7 @@ A merged model is **not required** for the provided inference script.
 
 ---
 
-# 🧠 Methodology
+# Methodology
 
 KatheBathe was developed using parameter-efficient fine-tuning with **QLoRA / LoRA and PEFT**.
 
@@ -228,17 +229,17 @@ A merged model is **not required** for the provided inference script.
 
 ---
 
-# 📚 Training Data
+# Training Data
 
 The model was fine-tuned using the following datasets.
 
-## SMU Qamar — Kashmiri-English Parallel Corpus
+## SMU Qamar - Kashmiri-English Parallel Corpus
 
 Dataset:
 
 https://huggingface.co/datasets/SMUQamar/Kashmiri-English-Parallel-Corpus
 
-## AI4Bharat — BPCC
+## AI4Bharat - BPCC
 
 Dataset:
 
@@ -246,7 +247,7 @@ https://huggingface.co/datasets/ai4bharat/BPCC
 
 ---
 
-# ⚙️ Installation
+# Installation
 
 ## Requirements
 
@@ -282,7 +283,7 @@ The provided inference setup:
 
 ---
 
-# 🔍 Inference
+# Inference
 
 The repository contains a single inference script:
 
@@ -302,7 +303,7 @@ The script supports:
 
 ---
 
-# ✅ Quick Inference Test
+# Quick Inference Test
 
 The quickest way to verify that the **model, tokenizer, adapter, and inference code** are working is:
 
@@ -332,7 +333,7 @@ If a translation is generated successfully, the inference setup is working.
 
 ---
 
-# ✍️ Single-Sentence Inference
+# Single-Sentence Inference
 
 Translate a single English sentence:
 
@@ -351,7 +352,7 @@ python inference.py \
 
 ---
 
-# 📦 Batch Inference
+# Batch Inference
 
 For batch inference, the input CSV must contain:
 
@@ -403,7 +404,7 @@ The script validates:
 
 ---
 
-# 🏆 Kaggle Usage
+# Kaggle Usage
 
 ## 1. Enable GPU
 
@@ -466,7 +467,7 @@ python /kaggle/working/inference.py \
 
 ---
 
-# 📄 Input CSV
+# Input CSV
 
 The required columns are:
 
@@ -484,7 +485,7 @@ ID,sentence
 
 ---
 
-# 📝 Manual CSV
+# Manual CSV
 
 Specify the input and output paths:
 
@@ -496,7 +497,7 @@ python inference.py \
 
 ---
 
-# 💬 Custom Text
+# Custom Text
 
 ## Single Sentence
 
@@ -515,7 +516,7 @@ python inference.py \
 
 ---
 
-# 🔄 Inference Flow
+# Inference Flow
 
 ```text
 Load tokenizer
@@ -543,7 +544,7 @@ The first 10 results printed at the end are previews of predictions that have al
 
 ---
 
-# ⚡ Generation Settings
+# Generation Settings
 
 ```python
 MAX_INPUT_LENGTH = 1024
@@ -574,7 +575,7 @@ python inference.py --batch-size 8
 
 ---
 
-# 🖥️ Technical Details
+# Technical Details
 
 ## Architecture
 
@@ -603,7 +604,7 @@ BF16 inference is designed for an NVIDIA CUDA GPU with BF16 support.
 
 ---
 
-# 📁 Repository Structure
+# Repository Structure
 
 ```text
 KATHE-KatheBathe/
@@ -613,7 +614,7 @@ KATHE-KatheBathe/
 └── README.md
 ```
 
-### `inference.py`
+## `inference.py`
 
 The main inference script responsible for:
 
@@ -625,11 +626,11 @@ The main inference script responsible for:
 - Prediction validation
 - Saving predictions
 
-### `requirements.txt`
+## `requirements.txt`
 
 Contains the Python packages required to run the inference script.
 
-### `README.md`
+## `README.md`
 
 Contains the:
 
@@ -642,7 +643,7 @@ Contains the:
 
 ---
 
-# 🔁 Reproducibility
+# Reproducibility
 
 The GitHub inference code and Hugging Face model are designed to work together.
 
@@ -672,7 +673,7 @@ The submitted code can therefore be tested directly against the submitted Huggin
 
 ---
 
-# 🎯 Intended Use
+# Intended Use
 
 KatheBathe is intended for:
 
@@ -694,7 +695,7 @@ The model should not be treated as:
 
 ---
 
-# ⚠️ Limitations
+# Limitations
 
 Machine translation can produce:
 
@@ -709,7 +710,7 @@ For important translations, human review is recommended.
 
 ---
 
-# 📊 Evaluation
+# Evaluation
 
 KatheBathe is intended for **English → Kashmiri translation**.
 
@@ -719,7 +720,7 @@ The final competition evaluation may use a private test set.
 
 ---
 
-# 👥 Team
+# Team
 
 **KATHE 2026**
 
@@ -730,7 +731,7 @@ The final competition evaluation may use a private test set.
 
 ---
 
-# 📜 Citations
+# Citations
 
 If you use KatheBathe or its training resources in research, projects, or tools, please acknowledge the model creators, base model, and datasets.
 
@@ -807,7 +808,7 @@ https://openreview.net/forum?id=vfT4YuzAYA
 
 ---
 
-# 📄 License
+# License
 
 This model is released under:
 
@@ -817,7 +818,7 @@ GPL-3.0
 
 ---
 
-# 🙏 Acknowledgements
+# Acknowledgements
 
 We acknowledge the creators of:
 
