@@ -1,4 +1,4 @@
-# KATHE Competition 2026  
+## KATHE Competition 2026  
 
 <h2>NAAW : KatheBathe</h2>
 
