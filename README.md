@@ -519,7 +519,7 @@ KatheBathe/Kathe-Bathe
 ## 3. Run
 
 ```bash
-python /kaggle/working/inference.py
+!python /kaggle/working/inference.py
 ```
 
 The script automatically searches:
@@ -540,7 +540,7 @@ sentence
 If multiple compatible CSV files are found, specify the input manually:
 
 ```bash
-python /kaggle/working/inference.py \
+!python /kaggle/working/inference.py \
     --input /kaggle/input/my-dataset/test.csv \
     --output /kaggle/working/predictions.csv
 ```
@@ -570,7 +570,7 @@ ID,sentence
 Specify the input and output paths:
 
 ```bash
-python inference.py \
+!python inference.py \
     --input /path/to/test.csv \
     --output /path/to/predictions.csv
 ```
@@ -582,14 +582,14 @@ python inference.py \
 ## Single Sentence
 
 ```bash
-python inference.py \
+!python inference.py \
     --text "She was a true visionary."
 ```
 
 ## Multiple Sentences
 
 ```bash
-python inference.py \
+!python inference.py \
     --text "She was a true visionary." \
     --text "The weather is beautiful today."
 ```
@@ -653,7 +653,7 @@ Default batch size:
 If GPU memory is insufficient:
 
 ```bash
-python inference.py --batch-size 8
+!python inference.py --batch-size 8
 ```
 
 ---
