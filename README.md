@@ -1,7 +1,6 @@
 # KATHE Competition 2026  
 
-
-## KatheBathe
+<h1>KatheBathe</h1>
 
 ## English → Kashmiri Machine Translation
 
