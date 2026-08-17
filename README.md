@@ -10,7 +10,7 @@ The model is fine-tuned from **`sarvamai/sarvam-translate`** using **QLoRA / LoR
 
 ---
 <img width="1199" height="555" alt="image" src="https://github.com/user-attachments/assets/81c86ab7-8227-4759-bbde-dce09453f216" />
-https://excalidraw.com/#json=fmEi9loC9z-9HUeORrQ4Y,cBAFupy9-eVpeILLJf1Yjg
+LINK : https://excalidraw.com/#json=fmEi9loC9z-9HUeORrQ4Y,cBAFupy9-eVpeILLJf1Yjg
 
 
 # Table of Contents
